@@ -1,0 +1,36 @@
+.library {
+  animation: fade-up 0.6s ease both;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1.25rem 2rem 0.5rem;
+}
+
+.search-wrap {
+  flex: 1;
+  min-width: 220px;
+}
+
+.search,
+.filter {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  outline: none;
+}
+
+.search:focus,
+.filter:focus {
+  border-color: rgba(232, 168, 56, 0.5);
+}
+
+.filter {
+  width: auto;
+  min-width: 200px;
+}
