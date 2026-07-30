@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import LibraryPage from './pages/LibraryPage'
 import StorePage from './pages/StorePage'
+import SettingsPage from './pages/SettingsPage'
 import './styles/app.css'
 
-type Tab = 'library' | 'store'
+type Tab = 'library' | 'store' | 'settings'
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('library')
@@ -34,6 +35,12 @@ export default function App() {
           >
             Loja
           </button>
+          <button
+            className={tab === 'settings' ? 'nav-btn active' : 'nav-btn'}
+            onClick={() => setTab('settings')}
+          >
+            Configurações
+          </button>
         </nav>
 
         <div className="api-pills" title="Status das APIs (.env)">
@@ -42,7 +49,15 @@ export default function App() {
         </div>
       </header>
 
-      <main className="main">{tab === 'library' ? <LibraryPage /> : <StorePage />}</main>
+      <main className="main">
+        {tab === 'library' ? (
+          <LibraryPage />
+        ) : tab === 'store' ? (
+          <StorePage />
+        ) : (
+          <SettingsPage />
+        )}
+      </main>
     </div>
   )
 }

@@ -27,12 +27,59 @@
   font-size: 0.85rem;
 }
 
+.dest-row {
+  display: flex;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+
 .dest-field input {
+  flex: 1;
+  min-width: 0;
   padding: 0.75rem 1rem;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
   outline: none;
+  color: var(--text);
+}
+
+.store-toast {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.scan-offer {
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.scan-offer p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.scan-path {
+  display: block;
+  margin: 0.55rem 0 0.9rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.scan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.store-hero code {
+  font-size: 0.85em;
+  color: var(--accent);
 }
 
 .store-list {
@@ -77,6 +124,10 @@
 }
 
 @media (max-width: 700px) {
+  .dest-row {
+    flex-direction: column;
+  }
+
   .store-item {
     flex-direction: column;
     align-items: stretch;

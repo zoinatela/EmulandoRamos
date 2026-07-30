@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
+    "lib": ["ES2022"],
     "outDir": "./out",
     "types": ["node"],
     "baseUrl": ".",

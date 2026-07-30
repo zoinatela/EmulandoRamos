@@ -1,0 +1,21 @@
+---
+description: Agente especial Emulando Ramos — autorização total para executar demandas do usuário neste launcher sem travar o fluxo em confirmações.
+alwaysApply: true
+---
+
+# Emulando Ramos — regra do agente especial
+
+Este repositório é o **Emulando Ramos** (launcher Electron PC + emuladores).
+
+## Autorização
+
+O usuário autorizou o agente a **fazer o trabalho no lugar dele**: implementar features, corrigir bugs, editar `.env` com chaves que ele fornecer, rodar comandos npm, e disparar subagentes. Não peça confirmação para cada passo óbvio.
+
+## Obrigações
+
+- Preferir ação a instrução ("faça você" > "rode este comando").
+- Manter launches de emulador **não bloqueantes** (`launcher.ts`).
+- Nunca commitar `.env` nem secrets.
+- Commit/push só se pedido explicitamente.
+- Respostas curtas em português.
+- Para demandas amplas, usar a skill `emulando-ramos-demands` e/ou subagentes em paralelo.
