@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { PLATFORMS } from '../../../shared/platforms'
+import { PLATFORM_FAMILIES, PLATFORMS } from '../../../shared/platforms'
 import type { Game, PlatformId } from '../../../shared/types'
 import GameGrid from '../components/GameGrid'
 import HeroFeatured from '../components/HeroFeatured'
@@ -37,6 +37,7 @@ function sortGames(list: Game[], mode: SortMode): Game[] {
 export default function LibraryPage() {
   const [games, setGames] = useState<Game[]>([])
   const [platform, setPlatform] = useState<PlatformId | 'all'>('all')
+  const [family, setFamily] = useState<string>('all')
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortMode>('title')
   const [busy, setBusy] = useState(false)
@@ -44,6 +45,14 @@ export default function LibraryPage() {
   const [enriching, setEnriching] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [selected, setSelected] = useState<Game | null>(null)
+
+  const platformOptions = useMemo(() => {
+    const list = PLATFORMS.filter((p) => p.id !== 'other')
+    if (family === 'all') return list
+    return list.filter((p) => p.family === family)
+  }, [family])
+
+  const platformCount = PLATFORMS.filter((p) => p.id !== 'other').length
 
   const patchGame = useCallback((updated: Game) => {
     setGames((prev) => prev.map((g) => (g.id === updated.id ? updated : g)))
@@ -231,21 +240,47 @@ export default function LibraryPage() {
         </button>
       </section>
 
+      <div className="platform-rail family-rail" role="toolbar" aria-label="Filtrar por fabricante">
+        <button
+          type="button"
+          className={family === 'all' ? 'chip active' : 'chip'}
+          onClick={() => {
+            setFamily('all')
+            setPlatform('all')
+          }}
+        >
+          Todas as marcas
+        </button>
+        {PLATFORM_FAMILIES.map((f) => (
+          <button
+            key={f}
+            type="button"
+            className={family === f ? 'chip active' : 'chip'}
+            onClick={() => {
+              setFamily(f)
+              setPlatform('all')
+            }}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
       <div className="platform-rail" role="toolbar" aria-label="Filtrar por plataforma">
         <button
           type="button"
           className={platform === 'all' ? 'chip active' : 'chip'}
           onClick={() => setPlatform('all')}
         >
-          Todas
+          {family === 'all' ? `Todas (${platformCount})` : `Todas desta marca`}
         </button>
-        {PLATFORMS.filter((p) => p.id !== 'other').map((p) => (
+        {platformOptions.map((p) => (
           <button
             key={p.id}
             type="button"
             className={platform === p.id ? 'chip active' : 'chip'}
             onClick={() => setPlatform(p.id)}
-            title={p.family}
+            title={`${p.family}${p.screenscraperId ? ` · SS #${p.screenscraperId}` : ''}`}
           >
             {p.name}
           </button>

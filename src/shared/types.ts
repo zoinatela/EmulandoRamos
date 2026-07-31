@@ -1,57 +1,5 @@
-export type PlatformId =
-  | 'pc'
-  // Nintendo
-  | 'nes'
-  | 'snes'
-  | 'n64'
-  | 'gamecube'
-  | 'wii'
-  | 'wiiu'
-  | 'switch'
-  | 'gb'
-  | 'gbc'
-  | 'gba'
-  | 'nds'
-  | '3ds'
-  | 'virtualboy'
-  // Sony
-  | 'ps1'
-  | 'ps2'
-  | 'ps3'
-  | 'psp'
-  | 'psvita'
-  // Sega
-  | 'mastersystem'
-  | 'genesis'
-  | 'segacd'
-  | 'sega32x'
-  | 'saturn'
-  | 'dreamcast'
-  | 'gamegear'
-  | 'sg1000'
-  // Microsoft
-  | 'xbox'
-  | 'xbox360'
-  // Others
-  | 'neogeo'
-  | 'neogeocd'
-  | 'neogeopocket'
-  | 'arcade'
-  | 'pcengine'
-  | 'supergrafx'
-  | 'wonderswan'
-  | 'wonderswancolor'
-  | 'atari2600'
-  | 'atari5200'
-  | 'atari7800'
-  | 'jaguar'
-  | 'lynx'
-  | 'amiga'
-  | 'c64'
-  | 'msx'
-  | 'dos'
-  | 'scummvm'
-  | 'other'
+/** Identificador de plataforma (slug Batocera / app). */
+export type PlatformId = string
 
 export interface PlatformDef {
   id: PlatformId
@@ -62,6 +10,8 @@ export interface PlatformDef {
   defaultCore?: string
   /** Palavras no caminho da pasta que ajudam a detectar plataforma */
   pathHints?: string[]
+  /** ID do sistema na API ScreenScraper (systemeid) */
+  screenscraperId?: number
 }
 
 export interface Game {
