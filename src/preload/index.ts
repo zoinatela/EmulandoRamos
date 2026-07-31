@@ -5,7 +5,8 @@ import type {
   Game,
   LaunchResult,
   PlatformId,
-  ScanResult
+  ScanResult,
+  StoreItem
 } from '../shared/types'
 
 export const api = {
@@ -34,6 +35,17 @@ export const api = {
 
   downloadStoreItem: (url: string, destDir: string): Promise<DownloadResult> =>
     ipcRenderer.invoke('store:download', url, destDir),
+
+  listCatalog: (): Promise<StoreItem[]> => ipcRenderer.invoke('catalog:list'),
+
+  saveCatalog: (items: StoreItem[]): Promise<StoreItem[]> =>
+    ipcRenderer.invoke('catalog:save', items),
+
+  upsertCatalogItem: (item: StoreItem): Promise<StoreItem[]> =>
+    ipcRenderer.invoke('catalog:upsert', item),
+
+  removeCatalogItem: (id: string): Promise<StoreItem[]> =>
+    ipcRenderer.invoke('catalog:remove', id),
 
   openPath: (path: string): Promise<string> => ipcRenderer.invoke('shell:openPath', path),
 

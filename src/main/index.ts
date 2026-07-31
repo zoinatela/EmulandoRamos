@@ -17,7 +17,13 @@ import { scrapeRawg } from './services/scraper-rawg'
 import { scrapeScreenScraper } from './services/scraper-screenscraper'
 import { downloadAndExtract } from './services/downloader'
 import { seedRetroArchDefaults } from './services/retroarch-detect'
-import type { Game, PlatformId } from '../shared/types'
+import {
+  listCatalog,
+  removeCatalogItem,
+  saveCatalog,
+  upsertCatalogItem
+} from './services/store-catalog'
+import type { Game, PlatformId, StoreItem } from '../shared/types'
 
 loadEnv({ path: join(process.cwd(), '.env') })
 
@@ -59,6 +65,10 @@ const IPC_CHANNELS = [
   'dialog:pickDirectory',
   'scraper:enrich',
   'store:download',
+  'catalog:list',
+  'catalog:save',
+  'catalog:upsert',
+  'catalog:remove',
   'shell:openPath',
   'app:getApiStatus',
   'emulator:get',
@@ -140,6 +150,14 @@ function registerIpc(): void {
   ipcMain.handle('store:download', async (_e, url: string, destDir: string) => {
     return downloadAndExtract(url, destDir)
   })
+
+  ipcMain.handle('catalog:list', async () => listCatalog())
+
+  ipcMain.handle('catalog:save', async (_e, items: StoreItem[]) => saveCatalog(items ?? []))
+
+  ipcMain.handle('catalog:upsert', async (_e, item: StoreItem) => upsertCatalogItem(item))
+
+  ipcMain.handle('catalog:remove', async (_e, id: string) => removeCatalogItem(id))
 
   ipcMain.handle('shell:openPath', async (_e, target: string) => shell.openPath(target))
 
