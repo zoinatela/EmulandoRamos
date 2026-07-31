@@ -1,7 +1,16 @@
 import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
 import { join } from 'path'
 import { config as loadEnv } from 'dotenv'
-import { initDatabase, listGames, upsertGame, getGameById } from './db/database'
+import {
+  initDatabase,
+  listGames,
+  upsertGame,
+  getGameById,
+  setFavorite,
+  getEmulator,
+  setEmulator,
+  listEmulators
+} from './db/database'
 import { scanFolder } from './services/scanner'
 import { launchGame } from './services/launcher'
 import { scrapeRawg } from './services/scraper-rawg'
@@ -43,12 +52,29 @@ const IPC_CHANNELS = [
   'game:list',
   'game:get',
   'game:play',
+  'game:favorite',
   'library:scan',
+  'library:scanPath',
+  'dialog:pickDirectory',
   'scraper:enrich',
   'store:download',
   'shell:openPath',
-  'app:getApiStatus'
+  'app:getApiStatus',
+  'emulator:get',
+  'emulator:set',
+  'emulator:list',
+  'dialog:pickFile'
 ] as const
+
+async function pickDirectory(title: string): Promise<string | null> {
+  const win = BrowserWindow.getFocusedWindow() ?? mainWindow
+  const result = await dialog.showOpenDialog(win ?? undefined!, {
+    title,
+    properties: ['openDirectory']
+  })
+  if (result.canceled || !result.filePaths[0]) return null
+  return result.filePaths[0]
+}
 
 function registerIpc(): void {
   for (const ch of IPC_CHANNELS) {
@@ -67,16 +93,25 @@ function registerIpc(): void {
     return launchGame(game)
   })
 
+  ipcMain.handle('game:favorite', async (_e, id: string, favorite: boolean) => {
+    return setFavorite(id, Boolean(favorite))
+  })
+
   ipcMain.handle('library:scan', async () => {
-    const win = BrowserWindow.getFocusedWindow() ?? mainWindow
-    const result = await dialog.showOpenDialog(win ?? undefined!, {
-      title: 'Selecionar pasta de jogos / ROMs',
-      properties: ['openDirectory']
-    })
-    if (result.canceled || !result.filePaths[0]) {
+    const dir = await pickDirectory('Selecionar pasta de jogos / ROMs')
+    if (!dir) return { added: 0, skipped: 0, games: [] as Game[] }
+    return scanFolder(dir)
+  })
+
+  ipcMain.handle('library:scanPath', async (_e, dirPath: string) => {
+    if (!dirPath?.trim()) {
       return { added: 0, skipped: 0, games: [] as Game[] }
     }
-    return scanFolder(result.filePaths[0])
+    return scanFolder(dirPath.trim())
+  })
+
+  ipcMain.handle('dialog:pickDirectory', async (_e, title?: string) => {
+    return pickDirectory(title ?? 'Selecionar pasta')
   })
 
   ipcMain.handle('scraper:enrich', async (_e, id: string) => {
@@ -113,6 +148,38 @@ function registerIpc(): void {
       process.env.SCREENSCRAPER_DEV_ID && process.env.SCREENSCRAPER_SSID
     )
   }))
+
+  ipcMain.handle('emulator:get', async (_e, platform: PlatformId) => getEmulator(platform))
+
+  ipcMain.handle('emulator:list', async () => listEmulators())
+
+  ipcMain.handle(
+    'emulator:set',
+    async (
+      _e,
+      platform: PlatformId,
+      executable: string,
+      argsTemplate: string,
+      corePath?: string
+    ) => {
+      setEmulator(platform, executable, argsTemplate, corePath)
+      return { ok: true }
+    }
+  )
+
+  ipcMain.handle('dialog:pickFile', async (_e, opts?: { title?: string; filters?: { name: string; extensions: string[] }[] }) => {
+    const win = BrowserWindow.getFocusedWindow() ?? mainWindow
+    const result = await dialog.showOpenDialog(win ?? undefined!, {
+      title: opts?.title ?? 'Selecionar arquivo',
+      properties: ['openFile'],
+      filters: opts?.filters ?? [
+        { name: 'Executáveis', extensions: ['exe'] },
+        { name: 'Todos os arquivos', extensions: ['*'] }
+      ]
+    })
+    if (result.canceled || !result.filePaths[0]) return null
+    return result.filePaths[0]
+  })
 
   console.log('[ipc] handlers registrados')
 }

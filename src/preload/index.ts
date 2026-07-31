@@ -1,5 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { Game, LaunchResult, PlatformId, ScanResult } from '../shared/types'
+import type {
+  DownloadResult,
+  EmulatorConfig,
+  Game,
+  LaunchResult,
+  PlatformId,
+  ScanResult
+} from '../shared/types'
 
 export const api = {
   listGames: (platform?: PlatformId | 'all', query?: string): Promise<Game[]> =>
@@ -11,15 +18,43 @@ export const api = {
 
   scanLibrary: (): Promise<ScanResult> => ipcRenderer.invoke('library:scan'),
 
+  /** Escaneia uma pasta já conhecida (sem abrir o diálogo). */
+  scanLibraryPath: (dirPath: string): Promise<ScanResult> =>
+    ipcRenderer.invoke('library:scanPath', dirPath),
+
+  pickDirectory: (title?: string): Promise<string | null> =>
+    ipcRenderer.invoke('dialog:pickDirectory', title),
+
+  pickFile: (opts?: {
+    title?: string
+    filters?: { name: string; extensions: string[] }[]
+  }): Promise<string | null> => ipcRenderer.invoke('dialog:pickFile', opts),
+
   enrichGame: (id: string): Promise<Game | null> => ipcRenderer.invoke('scraper:enrich', id),
 
-  downloadStoreItem: (url: string, destDir: string) =>
+  downloadStoreItem: (url: string, destDir: string): Promise<DownloadResult> =>
     ipcRenderer.invoke('store:download', url, destDir),
 
   openPath: (path: string): Promise<string> => ipcRenderer.invoke('shell:openPath', path),
 
   getApiStatus: (): Promise<{ rawg: boolean; screenscraper: boolean }> =>
-    ipcRenderer.invoke('app:getApiStatus')
+    ipcRenderer.invoke('app:getApiStatus'),
+
+  setFavorite: (id: string, favorite: boolean): Promise<Game | null> =>
+    ipcRenderer.invoke('game:favorite', id, favorite),
+
+  getEmulator: (platform: PlatformId): Promise<EmulatorConfig | null> =>
+    ipcRenderer.invoke('emulator:get', platform),
+
+  listEmulators: (): Promise<EmulatorConfig[]> => ipcRenderer.invoke('emulator:list'),
+
+  setEmulator: (
+    platform: PlatformId,
+    executable: string,
+    argsTemplate: string,
+    corePath?: string
+  ): Promise<{ ok: boolean }> =>
+    ipcRenderer.invoke('emulator:set', platform, executable, argsTemplate, corePath)
 }
 
 contextBridge.exposeInMainWorld('emulando', api)

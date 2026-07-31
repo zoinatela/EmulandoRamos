@@ -2,7 +2,7 @@ import { app } from 'electron'
 import { join } from 'path'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 import type { Database, SqlJsStatic } from 'sql.js'
-import type { Game, PlatformId } from '../../shared/types'
+import type { EmulatorConfig, Game, PlatformId } from '../../shared/types'
 
 let SQL: SqlJsStatic
 let db: Database
@@ -174,11 +174,26 @@ export function markPlayed(id: string): void {
   persist()
 }
 
-export function getEmulator(platform: PlatformId): {
-  executable: string
-  argsTemplate: string
-  corePath?: string
-} | null {
+export function setFavorite(id: string, favorite: boolean): Game | null {
+  if (!ready || !db) return null
+  const game = getGameById(id)
+  if (!game) return null
+  db.run('UPDATE games SET favorite = ? WHERE id = ?', [favorite ? 1 : 0, id])
+  persist()
+  return { ...game, favorite }
+}
+
+function rowToEmulator(row: Record<string, unknown>): EmulatorConfig {
+  return {
+    platform: row.platform as PlatformId,
+    executable: String(row.executable),
+    argsTemplate: String(row.argsTemplate),
+    corePath: row.corePath ? String(row.corePath) : undefined
+  }
+}
+
+export function getEmulator(platform: PlatformId): EmulatorConfig | null {
+  if (!ready || !db) return null
   const stmt = db.prepare('SELECT * FROM emulators WHERE platform = ?')
   stmt.bind([platform])
   if (!stmt.step()) {
@@ -187,11 +202,18 @@ export function getEmulator(platform: PlatformId): {
   }
   const row = stmt.getAsObject()
   stmt.free()
-  return {
-    executable: String(row.executable),
-    argsTemplate: String(row.argsTemplate),
-    corePath: row.corePath ? String(row.corePath) : undefined
+  return rowToEmulator(row)
+}
+
+export function listEmulators(): EmulatorConfig[] {
+  if (!ready || !db) return []
+  const result: EmulatorConfig[] = []
+  const stmt = db.prepare('SELECT * FROM emulators ORDER BY platform')
+  while (stmt.step()) {
+    result.push(rowToEmulator(stmt.getAsObject()))
   }
+  stmt.free()
+  return result
 }
 
 export function setEmulator(

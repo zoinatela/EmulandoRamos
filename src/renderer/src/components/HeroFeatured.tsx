@@ -4,11 +4,19 @@ import '../styles/hero.css'
 
 interface Props {
   game: Game | null
+  enriching?: boolean
   onPlay: (game: Game) => void
   onEnrich: (game: Game) => void
+  onToggleFavorite?: (game: Game) => void
 }
 
-export default function HeroFeatured({ game, onPlay, onEnrich }: Props) {
+export default function HeroFeatured({
+  game,
+  enriching,
+  onPlay,
+  onEnrich,
+  onToggleFavorite
+}: Props) {
   if (!game) {
     return (
       <section className="hero empty">
@@ -48,9 +56,18 @@ export default function HeroFeatured({ game, onPlay, onEnrich }: Props) {
           <button className="btn primary pulse" onClick={() => onPlay(game)}>
             Jogar
           </button>
-          <button className="btn ghost" onClick={() => onEnrich(game)}>
-            Buscar capa
+          <button className="btn ghost" disabled={enriching} onClick={() => onEnrich(game)}>
+            {enriching ? 'Buscando…' : 'Buscar capa'}
           </button>
+          {onToggleFavorite && (
+            <button
+              className={game.favorite ? 'btn ghost fav-hero on' : 'btn ghost fav-hero'}
+              onClick={() => onToggleFavorite(game)}
+              aria-pressed={Boolean(game.favorite)}
+            >
+              {game.favorite ? '★ Favorito' : '☆ Favoritar'}
+            </button>
+          )}
         </div>
         {(game.year || game.developer) && (
           <p className="hero-meta">
