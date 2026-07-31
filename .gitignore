@@ -11,6 +11,12 @@ data/
 !.vscode/extensions.json
 release/
 *.tsbuildinfo
+tsconfig.*.tsbuildinfo
+# Accidental tsc emits beside sources (keep intentional preload typings)
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+!src/preload/index.d.ts
 scripts/_platforms_raw.json
 .tmp-*
 .tmp-systems.json

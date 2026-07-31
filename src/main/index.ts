@@ -16,6 +16,7 @@ import { launchGame } from './services/launcher'
 import { scrapeRawg } from './services/scraper-rawg'
 import { scrapeScreenScraper } from './services/scraper-screenscraper'
 import { downloadAndExtract } from './services/downloader'
+import { seedRetroArchDefaults } from './services/retroarch-detect'
 import type { Game, PlatformId } from '../shared/types'
 
 loadEnv({ path: join(process.cwd(), '.env') })
@@ -191,6 +192,7 @@ app.whenReady().then(async () => {
   try {
     await initDatabase()
     console.log('[boot] database ok')
+    seedRetroArchDefaults()
   } catch (err) {
     console.error('[boot] Falha no database:', err)
   }

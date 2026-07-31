@@ -21,6 +21,14 @@ npm.cmd run dev
 
 Preencha as chaves no arquivo `.env`.
 
+## Emuladores (RetroArch)
+
+Na primeira execução, o app procura `retroarch.exe` em caminhos comuns (Program Files, pastas do usuário, `D:\`/`E:\`, Steam, Scoop). Se achar, configura automaticamente as plataformas que já têm `defaultCore` em `platforms.ts` (sem sobrescrever o que você já salvou).
+
+Se o RetroArch não estiver instalado, aponte o `.exe` em **Configurações** e use args `-L {core} "{rom}"`.
+
+ROMs: use **Importar pasta** na biblioteca — o app não assume pastas de ROMs automaticamente.
+
 ## Scripts
 
 | Comando | Descrição |
