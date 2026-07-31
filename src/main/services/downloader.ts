@@ -8,13 +8,9 @@ import { join, basename } from 'path'
 import { pipeline } from 'stream/promises'
 import { Readable } from 'stream'
 import extract from 'extract-zip'
+import type { DownloadResult } from '../../shared/types'
 
-export interface DownloadResult {
-  ok: boolean
-  archivePath?: string
-  extractPath?: string
-  message?: string
-}
+export type { DownloadResult }
 
 export async function downloadAndExtract(
   url: string,

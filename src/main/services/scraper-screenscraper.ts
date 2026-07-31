@@ -1,25 +1,58 @@
 /**
  * Scraper ScreenScraper — ROMs / consoles.
  * Docs: https://www.screenscraper.fr/apiintro.php
- * Preencha as credenciais no .env (veja .env.example).
  */
 import type { PlatformId } from '../../shared/types'
 import type { ScrapeMeta } from './scraper-rawg'
 
-/** IDs de sistema ScreenScraper (subset) */
+/** IDs de sistema ScreenScraper — https://www.screenscraper.fr/api2/systemesListe.php */
 const SS_SYSTEM: Partial<Record<PlatformId, number>> = {
   nes: 3,
   snes: 4,
   n64: 14,
+  gamecube: 13,
+  wii: 16,
+  wiiu: 18,
+  switch: 225,
   gb: 9,
+  gbc: 10,
   gba: 12,
   nds: 15,
-  genesis: 1,
-  mastersystem: 2,
+  '3ds': 17,
+  virtualboy: 11,
   ps1: 57,
   ps2: 58,
+  ps3: 59,
   psp: 61,
-  dreamcast: 23
+  psvita: 62,
+  mastersystem: 2,
+  genesis: 1,
+  sega32x: 19,
+  segacd: 20,
+  saturn: 22,
+  dreamcast: 23,
+  gamegear: 21,
+  sg1000: 109,
+  xbox: 32,
+  xbox360: 33,
+  neogeo: 142,
+  neogeocd: 70,
+  neogeopocket: 25,
+  arcade: 75,
+  pcengine: 31,
+  supergrafx: 105,
+  wonderswan: 45,
+  wonderswancolor: 46,
+  atari2600: 26,
+  atari5200: 40,
+  atari7800: 41,
+  jaguar: 27,
+  lynx: 28,
+  amiga: 64,
+  c64: 66,
+  msx: 113,
+  dos: 135,
+  scummvm: 123
 }
 
 export async function scrapeScreenScraper(
@@ -59,7 +92,6 @@ export async function scrapeScreenScraper(
     const json = (await res.json()) as {
       response?: {
         jeu?: {
-          noms?: Array<{ region?: string; text?: string }>
           developpeur?: { text?: string }
           dates?: Array<{ region?: string; text?: string }>
           synopsis?: Array<{ langue?: string; text?: string }>
