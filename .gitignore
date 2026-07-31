@@ -10,3 +10,10 @@ data/
 .vscode/*
 !.vscode/extensions.json
 release/
+*.tsbuildinfo
+scripts/_platforms_raw.json
+.tmp-*
+.tmp-systems.json
+.tmp-platforms-out.json
+.tmp-screenscraper.cpp
+.tmp-platformid.cpp

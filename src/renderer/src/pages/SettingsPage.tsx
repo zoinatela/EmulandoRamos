@@ -29,12 +29,24 @@ export default function SettingsPage() {
   const [toast, setToast] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [platformQuery, setPlatformQuery] = useState('')
 
   const draft = drafts[platform] ?? emptyDraft(platform)
   const selectedDef = useMemo(
     () => PLATFORMS.find((p) => p.id === platform),
     [platform]
   )
+
+  const filteredEmuPlatforms = useMemo(() => {
+    const q = platformQuery.trim().toLowerCase()
+    if (!q) return EMU_PLATFORMS
+    return EMU_PLATFORMS.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q) ||
+        p.family.toLowerCase().includes(q)
+    )
+  }, [platformQuery])
 
   const loadAll = useCallback(async () => {
     if (!window.emulando) return
@@ -181,14 +193,16 @@ export default function SettingsPage() {
           </li>
         </ol>
         <div className="core-hints">
-          <p>Cores sugeridos:</p>
+          <p>Cores sugeridos (principais):</p>
           <ul>
-            {EMU_PLATFORMS.filter((p) => p.defaultCore).map((p) => (
-              <li key={p.id}>
-                <span>{p.name}</span>
-                <code>{p.defaultCore}</code>
-              </li>
-            ))}
+            {EMU_PLATFORMS.filter((p) => p.defaultCore)
+              .slice(0, 24)
+              .map((p) => (
+                <li key={p.id}>
+                  <span>{p.name}</span>
+                  <code>{p.defaultCore}</code>
+                </li>
+              ))}
           </ul>
         </div>
       </section>
@@ -203,7 +217,14 @@ export default function SettingsPage() {
 
         <div className="emu-layout">
           <nav className="platform-nav" aria-label="Plataformas">
-            {EMU_PLATFORMS.map((p) => {
+            <input
+              className="platform-search"
+              value={platformQuery}
+              onChange={(e) => setPlatformQuery(e.target.value)}
+              placeholder="Buscar plataforma…"
+              aria-label="Buscar plataforma"
+            />
+            {filteredEmuPlatforms.map((p) => {
               const has = Boolean(drafts[p.id]?.executable?.trim())
               return (
                 <button
@@ -217,6 +238,7 @@ export default function SettingsPage() {
                         : 'platform-nav-btn'
                   }
                   onClick={() => setPlatform(p.id)}
+                  title={p.screenscraperId ? `ScreenScraper #${p.screenscraperId}` : p.family}
                 >
                   {p.name}
                 </button>
