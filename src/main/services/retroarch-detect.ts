@@ -1,6 +1,7 @@
 /**
  * Auto-detect RetroArch on common Windows paths and seed emulator rows
- * only for platforms that still have no config (never overwrites).
+ * for platforms with defaultCore that have no config, or whose executable
+ * path no longer exists on disk (does not overwrite a working custom path).
  */
 import { existsSync } from 'fs'
 import { join } from 'path'
@@ -8,6 +9,7 @@ import { PLATFORMS } from '../../shared/platforms'
 import { getEmulator, setEmulator } from '../db/database'
 
 const DEFAULT_ARGS = '-L {core} "{rom}"'
+const PREFERRED_EXE = 'C:\\RetroArch-Win64\\retroarch.exe'
 
 function candidatePaths(): string[] {
   const pf = process.env['ProgramFiles'] ?? 'C:\\Program Files'
@@ -17,6 +19,9 @@ function candidatePaths(): string[] {
   const appData = process.env.APPDATA ?? ''
 
   return [
+    // Preferred install (user-provided)
+    PREFERRED_EXE,
+    'C:\\RetroArch-Win64\\RetroArch.exe',
     join(pf, 'RetroArch', 'retroarch.exe'),
     join(pf86, 'RetroArch', 'retroarch.exe'),
     join(local, 'Programs', 'RetroArch', 'retroarch.exe'),
@@ -44,7 +49,7 @@ export function findRetroArchExecutable(): string | null {
   return null
 }
 
-/** Seed SQLite emulator configs for platforms with defaultCore and no existing row. */
+/** Seed SQLite emulator configs for platforms with defaultCore (empty / broken exe only). */
 export function seedRetroArchDefaults(): { path: string; seeded: number } | null {
   const exe = findRetroArchExecutable()
   if (!exe) return null
@@ -53,7 +58,8 @@ export function seedRetroArchDefaults(): { path: string; seeded: number } | null
   for (const p of PLATFORMS) {
     if (p.id === 'pc' || p.id === 'other') continue
     if (!p.defaultCore) continue
-    if (getEmulator(p.id)) continue
+    const existing = getEmulator(p.id)
+    if (existing?.executable && existsSync(existing.executable)) continue
     setEmulator(p.id, exe, DEFAULT_ARGS, p.defaultCore)
     seeded++
   }
